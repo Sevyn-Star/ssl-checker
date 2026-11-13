@@ -9,6 +9,11 @@ MESSAGES: dict[str, str] = {
     "blocked_host": "这个地址不能检测。",
     "dns_failed": "无法解析这个域名。",
     "no_public_ip": "这个域名没有可用的公网地址。",
+    "connect_failed": "无法连上 443 端口。",
+    "timeout": "连接超时，目标没有在 10 秒内完成 TLS 握手。",
+    "handshake_failed": "TLS 握手失败。",
+    "no_certificate": "服务器没有返回证书。",
+    "rate_limited": "检测过于频繁，请稍后再试。",
 }
 
 _LABEL_CHARS = frozenset("abcdefghijklmnopqrstuvwxyz0123456789-")

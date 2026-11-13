@@ -1,0 +1,8 @@
+{
+  "ok": false,
+  "host": "example.com",
+  "error": {
+    "code": "timeout",
+    "message": "连接超时，目标没有在 10 秒内完成 TLS 握手。"
+  }
+}

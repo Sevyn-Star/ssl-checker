@@ -1,0 +1,56 @@
+:root {
+  --bg: #f6f6f4;
+  --card: #ffffff;
+  --text: #111111;
+  --muted: #6b7280;
+  --line: #e7e5e4;
+  --green: #15803d;
+  --green-bg: #dcfce7;
+  --amber: #b45309;
+  --amber-bg: #fef3c7;
+  --amber-deep: #9a3412;
+  --amber-deep-bg: #ffedd5;
+  --orange: #c2410c;
+  --orange-bg: #ffedd5;
+  --red: #b91c1c;
+  --red-bg: #fee2e2;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.tone-ok {
+  color: var(--green);
+}
+
+.tone-d30 {
+  color: var(--amber);
+}
+
+.tone-d15 {
+  color: var(--amber-deep);
+}
+
+.tone-d7 {
+  color: var(--orange);
+}
+
+.tone-bad {
+  color: var(--red);
+}
