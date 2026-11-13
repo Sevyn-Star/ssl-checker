@@ -108,6 +108,31 @@ def test_first_pem_block_is_the_leaf() -> None:
     assert material.pems[1] == _EXTRA
 
 
+def test_openssl_30_session_line_supplies_protocol_and_cipher() -> None:
+    def runner(args: list[str], timeout: float) -> CommandResult:
+        text = f"{_LEAF}\nNew, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384\n"
+        return _ok(text)
+
+    material = fetch_peer("1.1.1.1", "example.com", timeout=2, runner=runner)
+    assert material.protocol == "TLS 1.3"
+    assert material.cipher_suite == "TLS_AES_256_GCM_SHA384"
+
+
+def test_protocol_line_wins_over_session_line() -> None:
+    def runner(args: list[str], timeout: float) -> CommandResult:
+        text = (
+            f"{_LEAF}\n"
+            "Protocol  : TLSv1.2\n"
+            "Cipher    : ECDHE-RSA-AES128-GCM-SHA256\n"
+            "New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384\n"
+        )
+        return _ok(text)
+
+    material = fetch_peer("1.1.1.1", None, timeout=2, runner=runner)
+    assert material.protocol == "TLS 1.2"
+    assert material.cipher_suite == "ECDHE-RSA-AES128-GCM-SHA256"
+
+
 def test_protocol_can_be_read_from_stderr() -> None:
     def runner(args: list[str], timeout: float) -> CommandResult:
         return CommandResult(_LEAF, "Protocol  : TLSv1.2\nCipher    : ECDHE-RSA-AES128-GCM-SHA256\n", 0, False)

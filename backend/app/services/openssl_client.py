@@ -12,6 +12,7 @@ _PEM_RE = re.compile(
 )
 _PROTOCOL_RE = re.compile(r"^\s*Protocol\s*:\s*(\S+)\s*$", re.MULTILINE)
 _CIPHER_RE = re.compile(r"^\s*Cipher\s*:\s*(.*?)\s*$", re.MULTILINE)
+_SESSION_RE = re.compile(r"^\s*New,\s*(\S+),\s*Cipher is\s*(\S+)\s*$", re.MULTILINE)
 _ERROR_CODE_RE = re.compile(r"error (\d+)", re.IGNORECASE)
 _ERROR_LINE_RE = re.compile(r"error \d+.*", re.IGNORECASE)
 _DEPTH_RE = re.compile(r"^depth=(\d+)\s*:?\s*(.*)$", re.MULTILINE)
@@ -102,11 +103,8 @@ def fetch_peer(
     pems = tuple(_PEM_RE.findall(result.stdout))
     if not pems:
         raise FetchError(_failure_code(result))
-    return PeerMaterial(
-        pems,
-        _map_protocol(_search(_PROTOCOL_RE, result.stdout, result.stderr)),
-        _search(_CIPHER_RE, result.stdout, result.stderr),
-    )
+    protocol, cipher = _peer_session(result.stdout, result.stderr)
+    return PeerMaterial(pems, protocol, cipher)
 
 
 def verify_chain(
@@ -155,6 +153,24 @@ def _failure_code(result: CommandResult) -> str:
     if "no peer certificate" in blob:
         return "no_certificate"
     return "handshake_failed"
+
+
+def _peer_session(stdout: str, stderr: str) -> tuple[str | None, str | None]:
+    """OpenSSL 3.2 起分行打印 Protocol 和 Cipher。3.0 把两者写在 New 那一行。"""
+    protocol = _search(_PROTOCOL_RE, stdout, stderr)
+    cipher = _search(_CIPHER_RE, stdout, stderr)
+    if protocol is not None and cipher is not None:
+        return _map_protocol(protocol), cipher
+    for text in (stdout, stderr):
+        match = _SESSION_RE.search(text)
+        if match is None:
+            continue
+        if protocol is None:
+            protocol = match.group(1)
+        if cipher is None:
+            cipher = match.group(2)
+        break
+    return _map_protocol(protocol), cipher
 
 
 def _search(pattern: re.Pattern[str], stdout: str, stderr: str) -> str | None:

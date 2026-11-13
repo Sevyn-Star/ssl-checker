@@ -83,13 +83,14 @@ def _log(body: dict, elapsed_ms: int) -> None:
         chain = body.get("chain") or {}
         days = validity.get("remaining_days")
         logger.info(
-            "host=%s resolved_ip=%s status=%s remaining_days=%s chain=%s elapsed_ms=%s",
+            "host=%s resolved_ip=%s status=%s remaining_days=%s chain=%s elapsed_ms=%s cached=%s",
             body.get("host", "-"),
             body.get("resolved_ip", "-"),
             overall.get("status", "-"),
             "-" if days is None else days,
             chain.get("status", "-"),
             body.get("elapsed_ms", elapsed_ms),
+            body.get("cached", False),
         )
         return
     error = body.get("error") or {}

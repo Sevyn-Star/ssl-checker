@@ -2,6 +2,7 @@
 import { nextTick, ref } from "vue";
 import { useRouter } from "vue-router";
 
+import { checkHost } from "../api";
 import FeatureGrid from "../components/FeatureGrid.vue";
 
 const router = useRouter();
@@ -10,15 +11,21 @@ const error = ref("");
 const submitting = ref(false);
 
 async function submit() {
-  const value = host.value.trim();
-  if (value === "") {
+  const raw = host.value;
+  if (raw.trim() === "") {
     error.value = "请输入域名，例如 example.com。";
     return;
   }
   error.value = "";
   submitting.value = true;
   await nextTick();
-  await router.push({ name: "result", params: { host: value } });
+  try {
+    const body = await checkHost(raw, false);
+    await router.push({ name: "result", params: { host: body.host } });
+  } catch (caught) {
+    error.value = caught instanceof Error ? caught.message : "检测服务暂时不可用。";
+    submitting.value = false;
+  }
 }
 </script>
 

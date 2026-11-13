@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -8,8 +9,18 @@ from app.api.health import router as health_router
 from app.runtime import ensure_runtime
 
 
+def _show_check_log() -> None:
+    log = logging.getLogger("app.api.check")
+    log.setLevel(logging.INFO)
+    if not log.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("%(message)s"))
+        log.addHandler(handler)
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    _show_check_log()
     ensure_runtime()
     yield
 

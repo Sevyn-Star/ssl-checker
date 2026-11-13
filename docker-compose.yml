@@ -1,0 +1,15 @@
+services:
+  api:
+    build: ./backend
+    environment:
+      CHECK_TIMEOUT_SECONDS: "10"
+      CACHE_TTL_SECONDS: "300"
+      ERROR_CACHE_TTL_SECONDS: "30"
+      RATE_LIMIT_PER_MINUTE: "10"
+      TRUST_PROXY: "0"
+  web:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
